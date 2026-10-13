@@ -1,0 +1,83 @@
+/**
+# Copyright (c) 2022, NVIDIA CORPORATION.  All rights reserved.
+# Copyright (c) 2024 Enflame Technologies, Inc. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+**/
+
+package modifier
+
+import (
+	"fmt"
+
+	"enflame/enflame-container-toolkit/internal/config"
+	"enflame/enflame-container-toolkit/internal/config/image"
+	"enflame/enflame-container-toolkit/internal/discover"
+	"enflame/enflame-container-toolkit/internal/logger"
+	"enflame/enflame-container-toolkit/internal/oci"
+)
+
+// NewFeatureGatedModifier creates the modifiers for optional features.
+// These include:
+//
+//	ENFLAME_GDS=enabled
+//	ENFLAME_MOFED=enabled
+//	ENFLAME_EFSWITCH=enabled
+//	ENFLAME_GDRCOPY=enabled
+//
+// If not devices are selected, no changes are made.
+func NewFeatureGatedModifier(logger logger.Interface, cfg *config.Config, image image.TOPS) (oci.SpecModifier, error) {
+	if devices := image.DevicesFromEnvvars(visibleDevicesEnvvar); len(devices.List()) == 0 {
+		logger.Infof("No modification required; no devices requested")
+		return nil, nil
+	}
+
+	var discoverers []discover.Discover
+
+	driverRoot := cfg.ENFLAMEContainerCLIConfig.Root
+	devRoot := cfg.ENFLAMEContainerCLIConfig.Root
+
+	if cfg.Features.IsEnabled(config.FeatureGDS, image) {
+		d, err := discover.NewGDSDiscoverer(logger, driverRoot, devRoot)
+		if err != nil {
+			return nil, fmt.Errorf("failed to construct discoverer for GDS devices: %w", err)
+		}
+		discoverers = append(discoverers, d)
+	}
+
+	if cfg.Features.IsEnabled(config.FeatureMOFED, image) {
+		d, err := discover.NewMOFEDDiscoverer(logger, devRoot)
+		if err != nil {
+			return nil, fmt.Errorf("failed to construct discoverer for MOFED devices: %w", err)
+		}
+		discoverers = append(discoverers, d)
+	}
+
+	if cfg.Features.IsEnabled(config.FeatureEFSWITCH, image) {
+		d, err := discover.NewEfSwitchDiscoverer(logger, devRoot)
+		if err != nil {
+			return nil, fmt.Errorf("failed to construct discoverer for EFSWITCH devices: %w", err)
+		}
+		discoverers = append(discoverers, d)
+	}
+
+	if cfg.Features.IsEnabled(config.FeatureGDRCopy, image) {
+		d, err := discover.NewGDRCopyDiscoverer(logger, devRoot)
+		if err != nil {
+			return nil, fmt.Errorf("failed to construct discoverer for GDRCopy devices: %w", err)
+		}
+		discoverers = append(discoverers, d)
+	}
+
+	return NewModifierFromDiscoverer(logger, discover.Merge(discoverers...))
+}

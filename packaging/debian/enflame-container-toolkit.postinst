@@ -1,0 +1,28 @@
+#!/bin/sh
+
+set -e
+
+ENFLAME_CONTAINER_RUNTIME_HOOK=/usr/bin/enflame-container-runtime-hook
+ENFLAME_CONTAINER_TOOLKIT=/usr/bin/enflame-container-toolkit
+
+case "$1" in
+    configure)
+        if [ -f "${ENFLAME_CONTAINER_RUNTIME_HOOK}" ]; then
+		if [ ! -e "${ENFLAME_CONTAINER_TOOLKIT}" ]; then
+			ln -s ${ENFLAME_CONTAINER_RUNTIME_HOOK} ${ENFLAME_CONTAINER_TOOLKIT}
+		fi
+        fi
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+#DEBHELPER#
+
+exit 0

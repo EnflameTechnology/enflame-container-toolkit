@@ -1,0 +1,31 @@
+Source: enflame-container-toolkit
+Section: @SECTION@utils
+Priority: optional
+Maintainer: NVIDIA CORPORATION <topstools@enflame.com>
+Standards-Version: 3.9.8
+Homepage: https://enflame/enflame-container-toolkit
+Vcs-Git: https://enflame/enflame-container-toolkit
+Vcs-Browser: https://enflame/enflame-container-toolkit
+Build-Depends: debhelper (>= 9)
+
+Package: enflame-container-toolkit
+Architecture: any
+Depends: ${misc:Depends}, enflame-container-toolkit-base (= @VERSION@), libenflame-container-tools (>= @LIBENFLAME_CONTAINER_TOOLS_VERSION@), libenflame-container-tools (<< 2.0.0)
+Breaks: enflame-container-runtime (<= 3.5.0-1), enflame-container-runtime-hook
+Replaces: enflame-container-runtime (<= 3.5.0-1), enflame-container-runtime-hook
+Description: ENFLAME Container toolkit
+ Provides tools and utilities to enable GCU support in containers.
+
+Package: enflame-container-toolkit-base
+Architecture: any
+Depends: ${misc:Depends}
+Breaks: enflame-container-runtime (<= 3.5.0-1), enflame-container-runtime-hook, enflame-container-toolkit (<= 1.10.0-1)
+Replaces: enflame-container-runtime (<= 3.5.0-1), enflame-container-runtime-hook
+Description: ENFLAME Container Toolkit Base
+ Provides tools such as the ENFLAME Container Runtime and ENFLAME Container Toolkit CLI to enable GCU support in containers.
+
+Package: enflame-container-toolkit-operator-extensions
+Architecture: any
+Depends: ${misc:Depends}, enflame-container-toolkit-base (= @VERSION@)
+Description: ENFLAME Container Toolkit Operator Extensions
+ Provides tools for using the ENFLAME Container Toolkit with the GCU Operator

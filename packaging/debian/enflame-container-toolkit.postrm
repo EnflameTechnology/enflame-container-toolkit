@@ -1,0 +1,24 @@
+#!/bin/sh
+
+set -e
+
+ENFLAME_CONTAINER_RUNTIME_HOOK=/usr/bin/enflame-container-runtime-hook
+ENFLAME_CONTAINER_TOOLKIT=/usr/bin/enflame-container-toolkit
+
+case "$1" in
+    purge)
+        [ -L "${ENFLAME_CONTAINER_TOOLKIT}" ] && rm ${ENFLAME_CONTAINER_TOOLKIT}
+    ;;
+
+    upgrade|failed-upgrade|remove|abort-install|abort-upgrade|disappear)
+    ;;
+
+    *)
+        echo "postrm called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+#DEBHELPER#
+
+exit 0

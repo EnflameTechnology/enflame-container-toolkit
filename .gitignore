@@ -1,0 +1,13 @@
+dist
+artifacts
+*.swp
+*.swo
+/coverage.out*
+/test/output/
+/enflame-container-runtime
+/enflame-container-runtime.*
+/enflame-container-runtime-hook
+/enflame-container-toolkit
+/enflame-ctk
+/shared-*
+/release-*
